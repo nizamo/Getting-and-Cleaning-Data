@@ -9,11 +9,11 @@ of yes/no questions related to the project. You will be required to submit:
 to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. 
 This repo explains how all of the scripts work and how they are connected.
 
-#The data for the project can be retrieved from:# 
+#The data for the project can be retrieved from:
 
 https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
 
-#Tasks#
+#Tasks
 We need to create one R script called run_analysis.R that does the following tasks. 
 1. Merges the training and the test sets to create one data set.
 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
@@ -22,7 +22,7 @@ We need to create one R script called run_analysis.R that does the following tas
 5. From the data set in step 4, creates a second, independent tidy data set with the average 
    of each variable for each activity and each subject.
 
-#Steps to work on this course project#
+#Steps to work on this course project
 
 1. Download the data source and put into a folder on your local drive. You'll have a UCI HAR Dataset folder.
 2. Create a new R script file in RStudio and do the program that will do the TASKS above.Name this file as
