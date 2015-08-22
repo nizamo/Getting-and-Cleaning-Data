@@ -4,7 +4,7 @@ The purpose of this project is to demonstrate your ability to collect, work with
 The goal is to prepare tidy data that can be used for later analysis. 
 
 #What is required to submit: 
-1) a tidy data set as described below. 
+1) a tidy data set as described below. \n
 2) a link to a Github repository with your script for performing the analysis. 
 3) a code book that describes the variables, the data, and any transformations or work that have been performed 
 to clean up the data called CodeBook.md. 
