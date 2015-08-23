@@ -1,6 +1,6 @@
 # Peer Review Project- Module 3: Getting and cleaning data
 # 
-# Create one R script called run_analysis.R that does the following:
+# Create one R script called run_analysis.R that does the following TASKS:
 # 1. Merges the training and the test sets to create one data set.
 # 2. Extracts only the measurements on the mean and standard deviation for each 
 #    measurement.
@@ -9,63 +9,81 @@
 # 5. Creates a second, independent tidy data set with the average of each variable 
 #    for each activity and each subject.
 #
-#########################################################################################
-# TASKS
-# 1. Merges the training and the test sets to create one data set.
+###################################################################################
+#Loading libraries
+install.packages("data.table")
+library(data.table)
+library(dplyr)
 
-x1 <- read.table("train/X_train.txt")
-x2 <- read.table("test/X_test.txt")
-X  <- rbind(x1, x2)
+#Read Supporting Metadata
+featureNames <- read.table("features.txt")
+activityLabels <- read.table("activity_labels.txt", header = FALSE)
 
-y1 <- read.table("train/y_train.txt")
-y2 <- read.table("test/y_test.txt")
-Y  <- rbind(y1, y2)
+#Folder train data: the data is split up into subject, activity and features.
+#Read train data
+subjectTrain <- read.table("train/subject_train.txt", header = FALSE)
+activityTrain <- read.table("train/y_train.txt", header = FALSE)
+featuresTrain <- read.table("train/X_train.txt", header = FALSE)
 
-z1 <- read.table("train/subject_train.txt")
-z2 <- read.table("test/subject_test.txt")
-Z  <- rbind(z1, z2)
+#Read test data
+subjectTest <- read.table("test/subject_test.txt", header = FALSE)
+activityTest <- read.table("test/y_test.txt", header = FALSE)
+featuresTest <- read.table("test/X_test.txt", header = FALSE)
+
+#Task 1 - Merge the training and the test sets to create one data set
+subject  <- rbind(subjectTrain, subjectTest)
+activity <- rbind(activityTrain, activityTest)
+features <- rbind(featuresTrain, featuresTest)
+
+#Name the column names from the features file in variable featureNames
+colnames(features) <- t(featureNames[2])
+
+#Add activity and subject as a column to features
+colnames(activity) <- "Activity"
+colnames(subject) <- "Subject"
+completeData <- cbind(features,activity,subject)
 
 
-# 2. Extracts only the measurements on the mean and standard deviation for 
-#    each measurement.
+#Task 2 - Extracts only the measurements on the mean and standard deviation for each measurement
+columnsWithMeanSTD <- grep(".*Mean.*|.*Std.*", names(completeData), ignore.case=TRUE)
 
-features <- read.table("features.txt")
-indices_of_good_features <- grep("-mean\\(\\)|-std\\(\\)", features[, 2])
-X <- X[, indices_of_good_features]
-names(X) <- features[indices_of_good_features, 2]
-names(X) <- gsub("\\(|\\)", "", names(X))
-names(X) <- tolower(names(X))
+#Adding activity and subject columns
+requiredColumns <- c(columnsWithMeanSTD, 562, 563)
 
-# 3. Uses descriptive activity names to name the activities in the data set.
+#Look at the number of variables in completeData
+dim(completeData)
+extractedData <- completeData[,requiredColumns]
 
-activities <- read.table("activity_labels.txt")
-activities[, 2] = gsub("_", "", tolower(as.character(activities[, 2])))
-Y[,1] = activities[Y[,1], 2]
-names(Y) <- "activity"
+#Look at the number of variables in extractedData
+dim(extractedData)
 
-# 4. Appropriately labels the data set with descriptive activity names.
 
-names(Z) <- "subject"
-cleaned <- cbind(Z, Y, X)
-write.table(cleaned, "merged_clean_data.txt")
+#Task 3 - Uses descriptive activity names to name the activities in the data set
 
-# 5. Creates a 2nd, independent tidy data set with the average of each variable for 
-# each activity and each subject.
-
-uniqueSubjects = unique(Z)[,1]
-numSubjects = length(unique(Z)[,1])
-numActivities = length(activities[,1])
-numCols = dim(cleaned)[2]
-result = cleaned[1:(numSubjects*numActivities), ]
-
-row = 1
-for (Z in 1:numSubjects) {
-    for (a in 1:numActivities) {
-        result[row, 1] = uniqueSubjects[Z]
-        result[row, 2] = activities[a, 2]
-        tmp <- cleaned[cleaned$subject==Z & cleaned$activity==activities[a, 2], ]
-        result[row, 3:numCols] <- colMeans(tmp[, 3:numCols])
-        row = row+1
-    }
+extractedData$Activity <- as.character(extractedData$Activity)
+for (i in 1:6){
+  extractedData$Activity[extractedData$Activity == i] <- as.character(activityLabels[i,2])
 }
-write.table(result, "tidydata.txt")
+
+#Set the activity variable in the data as a factor
+extractedData$Activity <- as.factor(extractedData$Activity)
+
+
+#Task 4 - Appropriately labels the data set with descriptive variable names. 
+#Look at variable names 
+names(extractedData)
+
+#Task 5 - From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+#Set the subject variable in the data as a factor
+
+extractedData$Subject <- as.factor(extractedData$Subject)
+extractedData <- data.table(extractedData)
+
+#Create tidyData as a set with average for each activity and subject
+tidyData <- aggregate(. ~Subject + Activity, extractedData, mean)
+
+#Order tidyData according to subject and activity
+tidyData <- tidyData[order(tidyData$Subject,tidyData$Activity),]
+
+#Write tidyData into a text file
+write.table(tidyData, file = "Tidy.txt", row.names = FALSE)
