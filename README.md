@@ -34,5 +34,5 @@ We need to create one R script called run_analysis.R that does the following tas
    run_analysis.R.
 2. Save run_analysis.R in the parent folder of UCI HAR Dataset, then set your R Studio working directory it as your 
    working directory by using setwd()function in RStudio.
-3. Run source("run_analysis.R") from RStudio, then it will generate a new file named as tinydata.txt in your 
+3. Run source("run_analysis.R") from RStudio, then it will generate a new file named as Tidy.txt in  
    working directory.
